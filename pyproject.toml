@@ -1,0 +1,10 @@
+[project]
+name = "open-dem-aggregator"
+version = "0.1.0"
+description = "Add your description here"
+requires-python = ">=3.12"
+dependencies = [
+    "numpy>=2.3.4",
+    "pyproj>=3.7.2",
+    "rasterio>=1.4.3",
+]
