@@ -71,6 +71,14 @@ def _format_collection(meta: dict) -> DemCollection:
         "%Y-%m-%d",
     )
 
+    # get dem type (dsm or dtm)
+    if "dsm" in meta["id"]:
+        dem_type = "dsm"
+    elif "dtm" in meta["id"]:
+        dem_type = "dtm"
+    else:
+        dem_type = None
+
     collection = DemCollection(
         abstract=abstract,
         attribution=attribution,
@@ -80,6 +88,7 @@ def _format_collection(meta: dict) -> DemCollection:
         crs=crs,
         date_end=date_end,
         date_start=date_start,
+        dem_type=dem_type,
         details=root.find(".//gmd:statement/gco:CharacterString", xml_namespaces).text,
         format=data_format,
         host=root.find(

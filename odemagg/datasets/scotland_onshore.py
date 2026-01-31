@@ -47,6 +47,14 @@ def _format_collection(data: dict) -> DemCollection:
                 f"Unsupported datetime format: {data['metadata']['temporalExtent']['begin']}"
             ) from exc
 
+    # get dem type (dsm or dtm)
+    if "dsm" in data["name"]:
+        dem_type = "dsm"
+    elif "dtm" in data["name"]:
+        dem_type = "dtm"
+    else:
+        dem_type = None
+
     collection = DemCollection(
         abstract=data["metadata"]["abstract"],
         attribution=data["metadata"]["useConstraints"],
@@ -54,6 +62,7 @@ def _format_collection(data: dict) -> DemCollection:
         crs=data["metadata"]["spatialReferenceSystem"],
         date_end=date_end,
         date_start=date_start,
+        dem_type=dem_type,
         details="",
         format=data["metadata"]["dataFormat"],
         host="Scottish Government",

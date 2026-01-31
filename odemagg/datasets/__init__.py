@@ -4,6 +4,7 @@ Module containing classes for interacting with data and metadata of DEM datasets
 
 from dataclasses import dataclass, field
 from datetime import datetime
+from typing import Literal
 
 from odemagg.vector import PolygonWKT
 
@@ -39,6 +40,7 @@ class DemCollection:
     crs: str
     date_end: datetime | None
     date_start: datetime | None
+    dem_type: Literal["dsm", "dtm"] | None
     details: str
     format: str
     host: str
