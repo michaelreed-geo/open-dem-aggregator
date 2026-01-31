@@ -77,6 +77,14 @@ def _format_collection(meta: dict) -> DemCollection:
     #         ".//gmd:otherConstraints/gco:CharacterString", xml_namespaces
     #     ).text
 
+    # get dem type (dsm or dtm)
+    if "dsm" in meta["id"]:
+        dem_type = "dsm"
+    elif "dtm" in meta["id"]:
+        dem_type = "dtm"
+    else:
+        dem_type = None
+
     collection = DemCollection(
         abstract=abstract,
         attribution=attribution,
@@ -86,6 +94,7 @@ def _format_collection(meta: dict) -> DemCollection:
         crs=crs,
         date_end=date_end,
         date_start=date_start,
+        dem_type=dem_type,
         details="",
         format=data_format,
         host=root.find(
@@ -221,6 +230,12 @@ def get_data_intersecting_geometry(
                 date_split = i["properties"]["date_flown"].split("-")
                 if date_split:
                     year = date_split[-1]
+                    # check for double digit year format (i.e. 06 not 2006)
+                    if len(year) == 2:
+                        year_format = "%y"
+                    else:
+                        year_format = "%Y"
+
                     if len(date_split) >= 3:
                         # check if day is purely numeric
                         try:
@@ -228,6 +243,10 @@ def get_data_intersecting_geometry(
                             day = date_split[-3]
                         except ValueError:
                             day = date_split[-3][:-2]
+                            try:
+                                day = int(day)
+                            except ValueError:
+                                day = 1  # no date provided, assume first day of month
                         month = date_split[-2]
                     else:
                         # no date provided, assume first day of month
@@ -241,7 +260,7 @@ def get_data_intersecting_geometry(
                     else:
                         month_format = "%B"
                     date = datetime.strptime(
-                        f"{year}-{month}-{day}", f"%Y-{month_format}-%d"
+                        f"{year}-{month}-{day}", f"{year_format}-{month_format}-%d"
                     )
                 else:
                     date = None
@@ -286,3 +305,10 @@ def get_data_intersecting_geometry(
                 unique_urls.add(_tile.url)
                 tiles.append(_tile)
     return tiles
+
+
+if __name__ == "__main__":
+    wkt = "POLYGON ((324837.91116609796881676 187730.78707544109784067, 328510.40529526118189096 188431.32956430700141937, 328366.30463022610638291 186461.764554274501279, 325176.36712550360243767 186043.87840979505563155, 324837.91116609796881676 187730.78707544109784067))"
+    crs = "epsg:27700"
+    geometry = PolygonWKT(wkt, crs)
+    result = get_data_intersecting_geometry(geometry)
